@@ -2,6 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <Windows.h>
+#include <WinUser.h>
+#include <shellapi.h>
 
 using json = nlohmann::json;
 
@@ -67,26 +70,40 @@ void ShowInfo(const std::string& projectPath)
 
 void BuildProject(const std::string& projectPath)
 {
-    std::cout << "Building project: " << projectPath << "\n";
+    std::cout << "\n";
 
-    std::string buildPath = "./Engine/Build/BatchFiles/Build.bat";
-    std::string projectName = "BuildToolTest";
+    std::vector<std::string> projectInfos = JsonRead(projectPath);
+
+
+    std::string buildPath = "Engine\\Build\\BatchFiles\\Build.bat";
+    std::string projectName = projectInfos[0];
     std::string target = "Win64";
     std::string optimisation = "Development";
 
-    const std::string open = "open";
-    std::wstring wideOpen(open.begin(), open.end());
+    const std::string command = buildPath + " "  + projectName + " " + target + " " + optimisation + " " + projectPath + " -waitmutex";
 
-    const std::string filePath = buildPath + " " + projectName + " " + target + " " + optimisation + " " + projectPath + " -waitmutex";
-    std::wstring wideFilePath(filePath.begin(), filePath.end());
+    system(command.c_str());
+    
 
-    //ShellExecute(NULL, wideOpen.c_str(), wideFilePath.c_str(), NULL, NULL, SW_SHOWMINIMIZED);
+    std::cout << "\n";
+
 }
 
 void PackageProject(const std::string& projectPath, const std::string& packagePath)
 {
-    std::cout << "Packaging project: " << projectPath << " to " << packagePath << "\n";
-    // Implement your packaging logic here
+    std::cout << "\n";
+
+    std::vector<std::string> projectInfos = JsonRead(projectPath);
+
+
+    std::string buildPath = "Engine\\Build\\BatchFiles\\RunUAT.bat";
+
+    const std::string command = buildPath;
+
+    system(command.c_str());
+
+
+    std::cout << "\n";
 }
 
 std::vector<std::string> JsonRead(const std::string& projectPath)
