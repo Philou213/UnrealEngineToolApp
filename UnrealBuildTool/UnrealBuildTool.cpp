@@ -1,92 +1,141 @@
-// UnrealBuildTool.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
+#include <fmt/core.h>
 #include <iostream>
-#include <regex>
-#include <string>
-#include <windows.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
-void ProcessCommand(const std::string& command);
-void ShowInfos(const std::string& path);
-void Compile(const std::string& path);
-void Package(const std::string& path, const std::string& packagePath);
+using json = nlohmann::json;
 
-std::string GetProjectNameFromPath(const std::string& projectPath);
+void ShowInfo(const std::string& projectPath);
+void BuildProject(const std::string& projectPath);
+void PackageProject(const std::string& projectPath, const std::string& packagePath);
 
-int main()
+std::vector<std::string> JsonRead(const std::string& projectPath);
+
+int main(int argc, char* argv[])
 {
-	std::string command;
-    std::cout << "Welcome in the Unreal Build Tool!\n";
-    std::cout << "By Philippe St-Laurent-Recoura\n\n";
-	std::cout << "There are 4 commands :\n";
-    std::cout << "  MyTool [CHEMIN DU UPROJECT] show-infos\n";
-    std::cout << "  MyTool [CHEMIN DU UPROJECT] build\n";
-    std::cout << "  MyTool [CHEMIN DU UPROJECT] package [CHEMIN_DU_PACKAGE]\n";
-    std::cout << "  exit\n\n";
+    if (argc < 3) {
+        std::cout << "Usage: UnrealBuildTool.exe [UPROJECT_PATH] [COMMAND] [OPTIONAL_ARGUMENTS]\n";
+        std::cout << "Example: UnrealBuildTool.exe c:\\projects\\MyProject.uproject show-infos\n";
+        return 1;
+    }
 
-    while (true) {
-        std::cout << "Type the command line\n";
-        std::getline(std::cin, command);
+    std::string projectPath = argv[1]; // The .uproject file path
+    std::string command = argv[2];     // The command to execute
 
-        // Check for exit command
-        if (command == "exit") {
-            std::cout << "Goodbye!\n";
-            break;
+    // Process commands
+    if (command == "show-infos") {
+        ShowInfo(projectPath);
+    }
+    else if (command == "build") {
+        BuildProject(projectPath);
+    }
+    else if (command == "package") {
+        if (argc < 4) {
+            std::cout << "Missing package destination path for 'package' command.\n";
+            return 1;
         }
-
-        // Process the command
-        ProcessCommand(command);
-		std::cout << "\n";
+        std::string packagePath = argv[3]; // Package destination path
+        PackageProject(projectPath, packagePath);
     }
+    else {
+        std::cout << "Unknown command: " << command << "\n";
+        return 1;
+    }
+
+    return 0;
 }
 
-// Process commands
-void ProcessCommand(const std::string& command)
+void ShowInfo(const std::string& projectPath)
 {
-    std::regex showInfosRegex(R"(MyTool\s+(\S+)\s+show-infos)");
-    std::regex buildRegex(R"(MyTool\s+(\S+)\s+build)");
-    std::regex packageRegex(R"(MyTool\s+(\S+)\s+package\s+(\S+))");
-    std::smatch match;
+    std::cout << "\n";
 
-    if (std::regex_match(command, match, showInfosRegex)) {
-        std::string path = match[1].str();
-		ShowInfos(path);
+    std::vector<std::string> projectInfos = JsonRead(projectPath);
+
+    std::cout << "Project Name: " << projectInfos[0] << "\n";
+
+    if (projectInfos[1].find("{") != std::string::npos)
+    {
+        std::cout << "Unreal Engine Version: " << "From Source" << "\n";
     }
-    else if (std::regex_match(command, match, buildRegex)) {
-        std::string path = match[1].str();
-        std::cout << "Building the specified .uproject file " << path << "\n";
+    else
+    {
+        std::cout << "Unreal Engine Version: " << projectInfos[1] << "\n";
     }
-    else if (std::regex_match(command, match, packageRegex)) {
-        std::string path = match[1].str();
-		std::string packagePath = match[2].str();
-        std::cout << "Packaging the .uproject  " << path << "\n";
-    }
+    std::cout << "Plugins: " << projectInfos[2] << "\n";
+    std::cout << "\n";
 }
 
-void ShowInfos(const std::string& path)
+void BuildProject(const std::string& projectPath)
 {
-    std::cout << "Project name: " << path << "\n";
-    std::cout << "Unreal version: " << path << "\n";
-    std::cout << "Plugins: " << path << "\n";
-}
+    std::cout << "Building project: " << projectPath << "\n";
 
-void Compile(const std::string& path)
-{
-    std::string uePath = "./Engine/Build/BatchFiles/Build.bat";
-    std::string projectName = "TestProject";
-    std::string platform = "Win64";
-    std::string configuration = "Development";
+    std::string buildPath = "./Engine/Build/BatchFiles/Build.bat";
+    std::string projectName = "BuildToolTest";
+    std::string target = "Win64";
+    std::string optimisation = "Development";
 
     const std::string open = "open";
     std::wstring wideOpen(open.begin(), open.end());
 
-    const std::string filePath = "\"" + uePath + "\" " + projectName + " " + platform + " " + configuration + " -waitmutex";
+    const std::string filePath = buildPath + " " + projectName + " " + target + " " + optimisation + " " + projectPath + " -waitmutex";
     std::wstring wideFilePath(filePath.begin(), filePath.end());
 
-	std::cout << "Compiling the specified .uproject file " << path << "\n";
-    ShellExecute(NULL, wideOpen.c_str(), wideFilePath.c_str(), NULL, NULL, SW_SHOWMINIMIZED);
+    //ShellExecute(NULL, wideOpen.c_str(), wideFilePath.c_str(), NULL, NULL, SW_SHOWMINIMIZED);
 }
 
-void Package(const std::string& path, const std::string& packagePath)
+void PackageProject(const std::string& projectPath, const std::string& packagePath)
 {
+    std::cout << "Packaging project: " << projectPath << " to " << packagePath << "\n";
+    // Implement your packaging logic here
+}
+
+std::vector<std::string> JsonRead(const std::string& projectPath)
+{
+    std::vector<std::string> projectInfos;
+
+    std::ifstream file(projectPath);
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << projectPath << "\n";
+    }
+
+    // Parse the .uproject file as JSON
+    json projectData;
+    try {
+        file >> projectData;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error reading the JSON data: " << e.what() << "\n";
+    }
+
+    // Access the data from the JSON object
+    try {
+        // Get project name from FileDescription
+        std::string projectName = projectData["Modules"][0]["Name"];
+		projectInfos.push_back(projectName);
+
+        std::string unrealVersion = projectData["EngineAssociation"];
+		projectInfos.push_back(unrealVersion);
+
+        // Access and display the plugins
+        if (projectData.contains("Plugins")) {
+            std::string pluginNames;
+            for (const auto& plugin : projectData["Plugins"]) {
+                pluginNames += plugin["Name"].get<std::string>() + ", ";
+            }
+            if (!pluginNames.empty()) {
+                pluginNames.pop_back();
+                pluginNames.pop_back();
+            }
+            projectInfos.push_back(pluginNames);
+        }
+        else {
+            projectInfos.push_back("No plugins found.");
+        }
+
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error accessing JSON data: " << e.what() << "\n";
+    }
+	return projectInfos;
 }

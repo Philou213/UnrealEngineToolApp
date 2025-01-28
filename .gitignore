@@ -8,3 +8,6 @@ x86/
 *.vcxproj.user
 *.user
 *.suo
+
+vcpkg_installed/
+vcpkg/
