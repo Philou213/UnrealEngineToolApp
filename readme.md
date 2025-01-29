@@ -31,5 +31,5 @@ Build the project with Unreal Build Tool (UBT)
 ```sh
 [PathToThisExecutable] [PathToUnrealProject] package [PathToPackage]
 ```
-Package the project with Unreal Automation Tool (UAT)
-**Warning** The Package path must be in double quotes ("") and if the path contains double quotes(""), replace them with single quotes('')
+Package the project with Unreal Automation Tool (UAT)  
+**Warning :** The Package path must be in double quotes ("") and if the path contains double quotes(""), replace them with single quotes('')
