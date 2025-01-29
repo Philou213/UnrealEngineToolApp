@@ -17,3 +17,4 @@
       Build the project with UBT
    3. [PathToThisExecutable] [PathToUnrealProject] package [PackagePath]
       Package the project with UAT
+      **Warning** : The packagePath must be in double quote and the double quote in the package path must be changed for single quote
