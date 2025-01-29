@@ -93,12 +93,10 @@ void PackageProject(const std::string& projectPath, const std::string& packagePa
 {
     std::cout << "\n";
 
-    std::vector<std::string> projectInfos = JsonRead(projectPath);
-
 
     std::string buildPath = "Engine\\Build\\BatchFiles\\RunUAT.bat";
 
-    const std::string command = buildPath;
+    const std::string command = buildPath + " " + packagePath;
 
     system(command.c_str());
 
