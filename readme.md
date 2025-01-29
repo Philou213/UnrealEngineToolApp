@@ -32,4 +32,4 @@ Build the project with Unreal Build Tool (UBT)
 [PathToThisExecutable] [PathToUnrealProject] package [PathToPackage]
 ```
 Package the project with Unreal Automation Tool (UAT)  
-**Warning :** The Package path must be in double quotes ("") and if the path contains double quotes(""), replace them with single quotes('')
+**Warning :** The Package path must be in double quotes ("") and if the path contains double quotes(""), add a backslash (\) before each.
