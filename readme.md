@@ -6,21 +6,14 @@
 
 **UnrealEngineToolApp** is a tool designed to simplify and accelerate the process of building and packaging Unreal Engine projects. This project automates tasks to make the workflow more efficient, reducing manual steps and improving consistency across builds.  
 
-## Requirements  
+## How to use  
 
-This project requires the **vcpkg** package manager for dependency management.  
-
-### Installing vcpkg  
-
-If you don’t have vcpkg installed, follow these steps:  
-
-1. Clone the vcpkg repository:  
-   ```sh
-   git clone https://github.com/microsoft/vcpkg.git
-
-2. Bootstrap vcpkg:  
-   ```sh
-   .\bootstrap-vcpkg.bat
-
-3. Install vcpkg
-    ./vcpkg integrate install
+1. Open a terminal (Powershell or command prompt) in the root of the Unreal Engine folder
+2. This a list of commands that you can execute :
+   ***
+   1. [PathToThisExecutable] [PathToUnrealProject] show-infos 
+      Show infos about the project
+   2. [PathToThisExecutable] [PathToUnrealProject] build
+      Build the project with UBT
+   3. [PathToThisExecutable] [PathToUnrealProject] package [PackagePath]
+      Package the project with UAT
