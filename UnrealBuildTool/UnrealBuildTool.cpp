@@ -36,8 +36,12 @@ int main(int argc, char* argv[])
             std::cout << "Missing package destination path for 'package' command.\n";
             return 1;
         }
-        std::string packagePath = argv[3]; // Package destination path
-        PackageProject(projectPath, packagePath);
+        std::string packageArguments;
+        for (int i = 3; i < argc; ++i) {
+            if (i > 3) packageArguments += " "; // Add space between arguments
+            packageArguments += argv[i];
+        }
+        PackageProject(projectPath, packageArguments);
     }
     else {
         std::cout << "Unknown command: " << command << "\n";
@@ -91,7 +95,6 @@ void BuildProject(const std::string& projectPath)
 void PackageProject(const std::string& projectPath, const std::string& packagePath)
 {
     std::cout << "\n";
-
 
     std::string buildPath = "Engine\\Build\\BatchFiles\\RunUAT.bat";
 
